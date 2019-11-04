@@ -30,6 +30,7 @@ var Frog = /** @class */ (function () {
         this.motivatedByHunger = Math.random();
         this.motivatedByFood = Math.random();
         this.motivatedByDeath = Math.random();
+        this.motivatedToMoveAwayFromDeath = Math.random();
     };
     Frog.prototype.setGenesFromParent = function (mother, father) {
         var rouletteWheel = [];
@@ -49,6 +50,7 @@ var Frog = /** @class */ (function () {
         this.motivatedByHunger = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].motivatedByHunger;
         this.motivatedByFood = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].motivatedByFood;
         this.motivatedByDeath = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].motivatedByDeath;
+        this.motivatedToMoveAwayFromDeath = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].motivatedToMoveAwayFromDeath;
     };
     return Frog;
 }());
@@ -201,6 +203,11 @@ function determineMovement(frog, leftPad, rightPad) {
     }
     else
         totalDesireToMoveLeft += .5;
+    if (leftPad.hasDeadFrog) {
+        totalDesireToMoveRight += frog.motivatedToMoveAwayFromDeath;
+    }
+    else
+        totalDesireToMoveRight += .5;
     if (rightPad.hasFly) {
         totalDesireToMoveRight += frog.motivatedByFood;
     }
@@ -211,7 +218,12 @@ function determineMovement(frog, leftPad, rightPad) {
     }
     else
         totalDesireToMoveRight += .5;
-    if (desireToStayStill >= totalDesireToMoveRight / 4 && desireToStayStill >= totalDesireToMoveLeft / 4) {
+    if (rightPad.hasDeadFrog) {
+        totalDesireToMoveLeft += frog.motivatedToMoveAwayFromDeath;
+    }
+    else
+        totalDesireToMoveLeft += .5;
+    if (desireToStayStill >= totalDesireToMoveRight / 5 && desireToStayStill >= totalDesireToMoveLeft / 5) {
         return 0;
     }
     if (totalDesireToMoveLeft > totalDesireToMoveRight) {
@@ -245,6 +257,7 @@ function updateElements() {
     document.getElementById("bfHM").innerHTML = "Motivation From Hunger: " + getBest().motivatedByHunger.toFixed(2);
     document.getElementById("bfFM").innerHTML = "Motivation From Food: " + getBest().motivatedByFood.toFixed(2);
     document.getElementById("bfDM").innerHTML = "Motivation From Unfortunate Frogs: " + getBest().motivatedByDeath.toFixed(2);
+    document.getElementById("bfD2").innerHTML = "Motivation Away From Unfortunate Frogs: " + getBest().motivatedToMoveAwayFromDeath.toFixed(2);
     document.getElementById("bfCD").innerHTML = "Reason He's Not Still Going: " + getBest().causeOfCompletion;
     document.getElementById("currentGeneration").innerHTML = "generation: " + currentGeneration;
 }
