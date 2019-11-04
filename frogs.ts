@@ -1,12 +1,12 @@
-let mutationRate = 0.1;
-let chanceOfBird = .65;
-let chanceOfFly = .35;
+let mutationRate = 0.15;
+let chanceOfBird = .15;
+let chanceOfFly = .15;
 let flySatisfaction = .2;
-let hungerSpeed = .04;
-let rouletteWheelSize = 20;
-let recordedBestSize = 5;
-let initPopulation = 20;
-let padLength = 251;
+let hungerSpeed = .015;
+let rouletteWheelSize = 1000;
+let recordedBestSize = 10;
+let initPopulation = 400;
+let padLength = 701;
 let currentGeneration = 1;
 let frogs = [];
 let deadFrogs = [];
@@ -34,7 +34,7 @@ class Frog {
 
     setGenesFromScratch() {
         this.initDesireToMove = Math.random();
-        this.hungerLevel = Math.random();
+        this.hungerLevel = 1;
         this.motivatedByHunger = Math.random();
         this.motivatedByFood = Math.random();
         this.motivatedByDeath = Math.random();
@@ -53,7 +53,7 @@ class Frog {
                 rouletteWheel.push(father);
         }
         this.initDesireToMove = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].initDesireToMove;
-        this.hungerLevel = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].hungerLevel;
+        this.hungerLevel = 1;
         this.motivatedByHunger = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].motivatedByHunger;
         this.motivatedByFood = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].motivatedByFood;
         this.motivatedByDeath = rouletteWheel[(Math.floor(Math.random() * 100000000)) % rouletteWheelSize].motivatedByDeath;
@@ -86,14 +86,14 @@ function initializeCourse() {
     for (let i = 0; i < padLength; i++) {
         let padLeft = new LilyPad(0,i);
         let padRight = new LilyPad(1,i);
-        if (Math.random() < chanceOfBird) {
+        if (Math.random() < chanceOfBird && i != 0 && i != 1) {
             if(Math.random() > .5) {
                 padRight.setHasBird(true);
             }
             else
                 padLeft.setHasBird(true);
         }
-        if (Math.random() < chanceOfFly) {
+        if (Math.random() < chanceOfFly && i != 0 && i != 1) {
             if(Math.random() > .5) {
                 padRight.setHasFly(true);
             }
@@ -101,7 +101,6 @@ function initializeCourse() {
                 padLeft.setHasFly(true);
         }
         lilyPads.push([padLeft, padRight]);
-        console.log(lilyPads)
     }
 }
 
@@ -178,6 +177,7 @@ function select() {
     let bestFrogsTemp = bestFrogs;
     bestFrogs = [];
     for (let i = 0; i < bestFrogsTemp.length; i++) {
+        console.log(bestFrogsTemp[i]);
         for (let j = 0; j < initPopulation / recordedBestSize; j++) {
             bestFrogs.push(bestFrogsTemp[i]);
         }
@@ -221,7 +221,7 @@ function determineMovement(frog:Frog, leftPad:LilyPad, rightPad:LilyPad) {
     }
     else totalDesireToMoveLeft += .5;
 
-    if (leftPad.hasBird) {
+    if (leftPad.hasDeadFrog) {
         totalDesireToMoveLeft += frog.motivatedByDeath;
     }
     else totalDesireToMoveLeft += .5;
@@ -231,7 +231,7 @@ function determineMovement(frog:Frog, leftPad:LilyPad, rightPad:LilyPad) {
     }
     else totalDesireToMoveRight += .5;
 
-    if (rightPad.hasBird) {
+    if (rightPad.hasDeadFrog) {
         totalDesireToMoveRight += frog.motivatedByDeath;
     }
     else totalDesireToMoveRight += .5;
